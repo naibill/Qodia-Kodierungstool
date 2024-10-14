@@ -1,0 +1,34 @@
+__pycache__/
+*.pyc
+.DS_Store
+__pycache__/utils.cpython-312.pyc
+.flake8
+.pre-commit-config.yaml
+app.yaml
+deploy.sh
+.vscode/
+
+/data/*
+!/data/GOA_Ziffern.csv
+!/data/template_rechnung.html
+!/data/arial.ttf
+!/data/nginx.conf
+.env
+
+# Ignore all pkl files
+*.pkl
+
+# Ignore the /temp folder in the repo and all its contents
+/temp/*
+
+# Ignore the /ssl folder in the repo and all its contents
+/ssl/*
+
+# Ignore all files with .pem extension
+*.pem
+
+# Ignore all files inside the /tests folder
+/tests/*
+
+# Ignore all files inside the .vscode folder
+/.vscode/*
