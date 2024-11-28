@@ -1,0 +1,36 @@
+name: qodia
+services:
+  kodierungstool:
+    image: kodierungstool:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    networks:
+      - app-network
+    volumes:
+      - ./data:/app/data
+    environment:
+      - API_KEY=${API_KEY}
+      - API_URL=${API_URL}
+      - RAPID_API_KEY=${RAPID_API_KEY}
+      - COMPOSE_HTTP_TIMEOUT=300
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - kodierungstool
+    networks:
+      - app-network
+    volumes:
+      - ./data/nginx.conf:/etc/nginx/nginx.conf:ro 
+networks:
+  app-network:
+    driver: bridge

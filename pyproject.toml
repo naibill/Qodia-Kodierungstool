@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "qodia-kodierungstool"
+version = "0.1.0"
+description = ""
+authors = ["StephanPythonGod <bozztryh@web.de>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+streamlit = "^1.36.0"
+streamlit-cookies-controller = "^0.0.4"
+fuzzywuzzy = "^0.18.0"
+st-annotated-text = "^4.0.1"
+streamlit-drawable-canvas = "^0.9.3"
+pdf2image = "^1.17.0"
+transformers = "^4.44.2"
+sentencepiece = "^0.2.0"
+torch = "^2.4.1"
+pytesseract = "^0.3.13"
+flair = "^0.14.0"
+streamlit-paste-button = "^0.1.2"
+python-dotenv = "^1.0.1"
+python-levenshtein = "^0.25.1"
+xsdata = "^24.9"
+pyopenssl = "^24.2.1"
+cryptography = "^43.0.1"
+xmlschema = "^3.4.2"
+pypdf2 = "^3.0.1"
+streamlit-annotation-tools = "^1.0.1"
+reportlab = "^4.2.5"
+openpyxl = "^3.1.5"
+opentelemetry-api = "^1.23.0"
+opentelemetry-sdk = "^1.23.0"
+opentelemetry-exporter-otlp = "^1.23.0"
+opentelemetry-exporter-otlp-proto-http = "^1.28.2"
+pymupdf = "^1.24.14"
+
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.1.1"
+pre-commit = "^3.8.0"
+isort = "^5.13.2"
+black = "^24.8.0"
+pyinstaller = "^6.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
