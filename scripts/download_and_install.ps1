@@ -439,8 +439,21 @@ if ($deploymentChoice -eq '1') {
     }
 
     # Check Tesseract and add default paths
-    if (-not (Get-Command tesseract -ErrorAction SilentlyContinue)) {
-        Write-Host "Tesseract is not installed. Please install it from https://digi.bib.uni-mannheim.de/tesseract/"
+    function Test-TesseractInstallation {
+        try {
+            $tesseractVersion = & tesseract --version 2>&1
+            if ($tesseractVersion -match "tesseract") {
+                Write-Host "Tesseract is installed and working."
+                return $true
+            }
+        } catch {
+            return $false
+        }
+        return $false
+    }
+
+    if (-not (Test-TesseractInstallation)) {
+        Write-Host "Tesseract is not installed or not working properly. Please install it from https://digi.bib.uni-mannheim.de/tesseract/"
         
         # Add default Tesseract installation paths to PATH
         $tesseractPaths = @(
@@ -449,15 +462,31 @@ if ($deploymentChoice -eq '1') {
             "${env:LocalAppData}\Programs\Tesseract-OCR"
         )
         
+        $pathsAdded = $false
         foreach ($path in $tesseractPaths) {
-            Add-ToPath $path
+            if (Test-Path $path) {
+                if (Add-ToPath $path) {
+                    $pathsAdded = $true
+                    Test-PathEntry $path
+                }
+            }
         }
         
-        Write-Host "Default Tesseract paths have been added to system PATH."
-        Write-Host "After installing Tesseract, please restart your PowerShell session and run this script again."
-        exit 1
+        if ($pathsAdded) {
+            Write-Host "Tesseract paths have been added to system PATH."
+            # Check again after adding paths
+            if (Test-TesseractInstallation) {
+                Write-Host "Tesseract is now properly configured."
+            } else {
+                Write-Host "Please restart your PowerShell session and run this script again."
+                exit 1
+            }
+        } else {
+            Write-Host "Please install Tesseract and run this script again."
+            exit 1
+        }
     } else {
-        Write-Host "Tesseract is installed."
+        Write-Host "Tesseract is installed and working properly."
     }
 
     # Run Python setup script
