@@ -108,16 +108,36 @@ function Test-PathEntry {
 
 # Function to get Python command
 function Get-PythonCommand {
-    # Check for python command first
+    # First try the 'py' launcher as it's more reliable on Windows
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        # Verify py command works and points to Python 3.12
+        try {
+            $pyVersion = (& py -3.12 --version 2>&1).ToString()
+            if ($pyVersion -match 'Python 3\.12\.\d+') {
+                Write-Host "Found 'py' command with Python 3.12"
+                return "py -3.12"
+            }
+        } catch {
+            Write-Host "Found 'py' command but couldn't verify version"
+        }
+    }
+    
+    # Then try the 'python' command
     if (Get-Command python -ErrorAction SilentlyContinue) {
-        Write-Host "Found 'python' command"
-        return "python"
+        try {
+            $pythonVersion = (& python --version 2>&1).ToString()
+            # Check if it's not the Microsoft Store redirect
+            if ($pythonVersion -notmatch "Microsoft Store" -and 
+                $pythonVersion -notmatch "was not found" -and 
+                $pythonVersion -match 'Python 3\.12\.\d+') {
+                Write-Host "Found 'python' command with Python 3.12"
+                return "python"
+            }
+        } catch {
+            Write-Host "Found 'python' command but couldn't verify version"
+        }
     }
-    # Check for py command
-    elseif (Get-Command py -ErrorAction SilentlyContinue) {
-        Write-Host "Found 'py' command"
-        return "py"
-    }
+    
     return $null
 }
 
@@ -338,7 +358,7 @@ if ($deploymentChoice -eq '1') {
     # Check Python 3.12 and add default paths
     $pythonCmd = Get-PythonCommand
     if (-not $pythonCmd) {
-        Write-Host "Neither 'python' nor 'py' commands are available. Please install Python 3.12 from https://www.python.org/downloads/"
+        Write-Host "No valid Python 3.12 installation found. Please install Python 3.12 from https://www.python.org/downloads/"
         
         # Add default Python installation paths to PATH
         $pythonPaths = @(
@@ -369,21 +389,10 @@ if ($deploymentChoice -eq '1') {
         exit 1
     } else {
         try {
-            # Use the detected Python command to check version
-            $pythonVersion = if ($pythonCmd -eq "py") {
-                (& py -3.12 --version 2>&1).ToString()
-            } else {
-                (& $pythonCmd --version 2>&1).ToString()
-            }
-
-            if ($pythonVersion -match 'Python 3\.12\.\d+') {
-                Write-Host "Python 3.12 is installed: $pythonVersion"
-            } else {
-                Write-Error "Wrong Python version installed: $pythonVersion. Please install Python 3.12 from https://www.python.org/downloads/"
-                exit 1
-            }
+            # No need to check version again since we already did in Get-PythonCommand
+            Write-Host "Using Python command: $pythonCmd"
         } catch {
-            Write-Error "Failed to check Python version. Please install Python 3.12 from https://www.python.org/downloads/"
+            Write-Error "Failed to verify Python version. Please install Python 3.12 from https://www.python.org/downloads/"
             exit 1
         }
     }
@@ -398,7 +407,11 @@ if ($deploymentChoice -eq '1') {
             Set-Content -Path $tempFile -Value $installScript -Encoding UTF8
 
             # Run the installation script with the detected Python command
-            & $pythonCmd $tempFile
+            if ($pythonCmd -eq "py -3.12") {
+                & py -3.12 $tempFile
+            } else {
+                & $pythonCmd $tempFile
+            }
 
             # Clean up the temporary file
             Remove-Item -Path $tempFile -Force
