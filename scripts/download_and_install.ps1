@@ -392,8 +392,16 @@ if ($deploymentChoice -eq '1') {
     if (-not (Get-Command poetry -ErrorAction SilentlyContinue)) {
         Write-Host "Poetry is not installed. Installing Poetry..."
         try {
+            # Create a temporary file for the installation script
+            $tempFile = [System.IO.Path]::GetTempFileName()
             $installScript = (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content
-            & $pythonCmd - <<< $installScript
+            Set-Content -Path $tempFile -Value $installScript -Encoding UTF8
+
+            # Run the installation script with the detected Python command
+            & $pythonCmd $tempFile
+
+            # Clean up the temporary file
+            Remove-Item -Path $tempFile -Force
             
             # Add Poetry to PATH with verification
             $poetryPath = [System.IO.Path]::Combine($env:APPDATA, "Python", "Scripts")
