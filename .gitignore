@@ -41,3 +41,7 @@ deploy.sh
 
 # Remove all .tar files
 *.tar
+
+# Remove all .pem files
+*.pem
+
